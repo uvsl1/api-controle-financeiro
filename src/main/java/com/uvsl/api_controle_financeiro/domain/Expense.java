@@ -17,7 +17,7 @@ public class Expense {
 
     private BigDecimal amount;
 
-    private int numberOfInstallments;
+    private Integer numberOfInstallments;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
@@ -28,13 +28,24 @@ public class Expense {
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
-    private boolean fixedExpense;
+    private Boolean fixedExpense;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     public Expense() {
+    }
+
+    public Expense(String description, BigDecimal amount, int numberOfInstallments, Category category, LocalDate startDate, PaymentMethod paymentMethod, boolean fixedExpense, User user) {
+        this.description = description;
+        this.amount = amount;
+        this.numberOfInstallments = numberOfInstallments;
+        this.category = category;
+        this.startDate = startDate;
+        this.paymentMethod = paymentMethod;
+        this.fixedExpense = fixedExpense;
+        this.user = user;
     }
 
     public Expense(Long id, String description, BigDecimal amount, int numberOfInstallments, Category category, LocalDate startDate, PaymentMethod paymentMethod, boolean fixedExpense, User user) {
