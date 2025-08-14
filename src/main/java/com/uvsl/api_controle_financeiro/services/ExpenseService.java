@@ -5,12 +5,16 @@ import com.uvsl.api_controle_financeiro.domain.Expense;
 import com.uvsl.api_controle_financeiro.domain.PaymentMethod;
 import com.uvsl.api_controle_financeiro.domain.User;
 import com.uvsl.api_controle_financeiro.dtos.ExpenseDTO;
+import com.uvsl.api_controle_financeiro.dtos.MonthExpense;
 import com.uvsl.api_controle_financeiro.repositories.CategoryRepository;
 import com.uvsl.api_controle_financeiro.repositories.ExpenseRepository;
 import com.uvsl.api_controle_financeiro.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -115,5 +119,36 @@ public class ExpenseService {
                 expense.isFixedExpense(),
                 expense.getUser().getId()
         );
+    }
+
+    public MonthExpense calculateMonthExpenses(YearMonth month, Long userId) {
+        List<Expense> allExpenses = expenseRepository.findByUserId(userId);
+        BigDecimal total = BigDecimal.ZERO;
+        List<ExpenseDTO> monthExpenses = new ArrayList<>();
+
+        for (Expense expense : allExpenses) {
+            ExpenseDTO dto = toDTO(expense);
+            YearMonth start = YearMonth.from(dto.startDate());
+
+            if (dto.numberOfInstallments() != null && dto.numberOfInstallments() > 1) {
+                YearMonth end = start.plusMonths(dto.numberOfInstallments() - 1);
+                if (!month.isBefore(start) && !month.isAfter(end)) {
+                    BigDecimal installmentValue = dto.amount()
+                            .divide(BigDecimal.valueOf(dto.numberOfInstallments()));
+                    total = total.add(installmentValue);
+                    monthExpenses.add(dto);
+                }
+            }
+            else if (Boolean.TRUE.equals(dto.fixedExpense()) && !month.isBefore(start)) {
+                total = total.add(dto.amount());
+                monthExpenses.add(dto);
+            }
+            else if (start.equals(month)) {
+                total = total.add(dto.amount());
+                monthExpenses.add(dto);
+            }
+        }
+
+        return new MonthExpense(month, total, monthExpenses);
     }
 }

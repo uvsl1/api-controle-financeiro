@@ -1,5 +1,6 @@
 package com.uvsl.api_controle_financeiro.controllers;
 
+import com.uvsl.api_controle_financeiro.dtos.MonthExpense;
 import com.uvsl.api_controle_financeiro.services.ExpenseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -7,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.uvsl.api_controle_financeiro.dtos.ExpenseDTO;
 
+import java.time.YearMonth;
 import java.util.List;
 
 @RestController
@@ -48,4 +50,11 @@ public class ExpenseController {
         expenseService.deleteExpense(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/month")
+    public MonthExpense getMonthExpenses(@RequestParam int year, @RequestParam int month, @RequestParam Long userId) {
+        YearMonth requestedMonth = YearMonth.of(year, month);
+        return expenseService.calculateMonthExpenses(requestedMonth, userId);
+    }
 }
+
