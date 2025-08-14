@@ -27,8 +27,9 @@ public class ExpenseService {
     private CategoryRepository categoryRepository;
 
     public ExpenseDTO createExpense(ExpenseDTO expenseDTO) {
-        Category category = categoryRepository.findById(expenseDTO.categoryId())
+        Category category = categoryRepository.findByNameIgnoreCase(expenseDTO.categoryName())
                 .orElseThrow(() -> new RuntimeException("Categoria não encontrada"));
+
         User user = userRepository.findById(expenseDTO.userId())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
@@ -43,50 +44,20 @@ public class ExpenseService {
                 user
         );
         Expense savedExpense = expenseRepository.save(expense);
-        return new ExpenseDTO(
-                savedExpense.getId(),
-                savedExpense.getDescription(),
-                savedExpense.getAmount(),
-                savedExpense.getNumberOfInstallments(),
-                savedExpense.getCategory().getId(),
-                savedExpense.getStartDate(),
-                savedExpense.getPaymentMethod(),
-                savedExpense.isFixedExpense(),
-                savedExpense.getUser().getId()
-        );
+        return toDTO(savedExpense);
     }
 
     public List<ExpenseDTO> getExpensesByUserId(Long userId) {
-        List<Expense> expenses = expenseRepository.findByUserId(userId);
-        return expenses.stream()
-                .map(expense -> new ExpenseDTO(
-                        expense.getId(),
-                        expense.getDescription(),
-                        expense.getAmount(),
-                        expense.getNumberOfInstallments(),
-                        expense.getCategory().getId(),
-                        expense.getStartDate(),
-                        expense.getPaymentMethod(),
-                        expense.isFixedExpense(),
-                        expense.getUser().getId()
-                ))
+        return expenseRepository.findByUserId(userId)
+                .stream()
+                .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
     public ExpenseDTO getExpenseById(Long id) {
         Expense expense = expenseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
-        return new ExpenseDTO(
-                expense.getId(),
-                expense.getDescription(),
-                expense.getAmount(),
-                expense.getNumberOfInstallments(),
-                expense.getCategory().getId(),
-                expense.getStartDate(),
-                expense.getPaymentMethod(),
-                expense.isFixedExpense(),
-                expense.getUser().getId()
-        );
+        return toDTO(expense);
     }
 
     public ExpenseDTO partiallyUpdateExpense(Long id, ExpenseDTO expenseDTO) {
@@ -102,8 +73,8 @@ public class ExpenseService {
         if (expenseDTO.numberOfInstallments() != null) {
             expense.setNumberOfInstallments(expenseDTO.numberOfInstallments());
         }
-        if (expenseDTO.categoryId() != null) {
-            Category category = categoryRepository.findById(expenseDTO.categoryId())
+        if (expenseDTO.categoryName() != null) {
+            Category category = categoryRepository.findByNameIgnoreCase(expenseDTO.categoryName())
                     .orElseThrow(() -> new RuntimeException("Categoria não encontrada"));
             expense.setCategory(category);
         }
@@ -123,23 +94,26 @@ public class ExpenseService {
         }
 
         Expense updatedExpense = expenseRepository.save(expense);
-
-        return new ExpenseDTO(
-                updatedExpense.getId(),
-                updatedExpense.getDescription(),
-                updatedExpense.getAmount(),
-                updatedExpense.getNumberOfInstallments(),
-                updatedExpense.getCategory().getId(),
-                updatedExpense.getStartDate(),
-                updatedExpense.getPaymentMethod(),
-                updatedExpense.isFixedExpense(),
-                updatedExpense.getUser().getId()
-        );
+        return toDTO(updatedExpense);
     }
 
     public void deleteExpense(Long id) {
         Expense expense = expenseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
         expenseRepository.delete(expense);
+    }
+
+    private ExpenseDTO toDTO(Expense expense) {
+        return new ExpenseDTO(
+                expense.getId(),
+                expense.getDescription(),
+                expense.getAmount(),
+                expense.getNumberOfInstallments(),
+                expense.getCategory().getName(),
+                expense.getStartDate(),
+                expense.getPaymentMethod(),
+                expense.isFixedExpense(),
+                expense.getUser().getId()
+        );
     }
 }

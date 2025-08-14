@@ -1,17 +1,30 @@
 package com.uvsl.api_controle_financeiro.config;
 
 import com.uvsl.api_controle_financeiro.domain.Category;
+import com.uvsl.api_controle_financeiro.domain.Expense;
+import com.uvsl.api_controle_financeiro.domain.PaymentMethod;
+import com.uvsl.api_controle_financeiro.domain.User;
 import com.uvsl.api_controle_financeiro.repositories.CategoryRepository;
+import com.uvsl.api_controle_financeiro.repositories.ExpenseRepository;
+import com.uvsl.api_controle_financeiro.repositories.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Configuration
 public class DataInitializer {
 
     @Bean
-    CommandLineRunner initDatabase(CategoryRepository categoryRepository) {
+    CommandLineRunner initDatabase(CategoryRepository categoryRepository,
+                                   UserRepository userRepository,
+                                   ExpenseRepository expenseRepository) {
         return args -> {
+
+            // Categorias fixas
+
             if (categoryRepository.count() == 0) {
                 categoryRepository.save(new Category("Moradia"));
                 categoryRepository.save(new Category("Contas"));
@@ -27,6 +40,49 @@ public class DataInitializer {
                 categoryRepository.save(new Category("Presentes"));
                 categoryRepository.save(new Category("Investimentos"));
                 categoryRepository.save(new Category("Outros"));
+            }
+
+            // Usuario de teste
+
+            if (userRepository.count() == 0) {
+                User user = new User();
+                user.setName("Ugo V");
+                user.setEmail("ugo.com");
+                user.setPassword("123");
+                userRepository.save(user);
+            }
+
+            // Despesas de teste
+
+            if (expenseRepository.count() == 0) {
+                Category categoryMoradia = categoryRepository.findByNameIgnoreCase("Moradia")
+                        .orElseThrow(() -> new RuntimeException("Categoria 'Moradia' não encontrada"));
+                Category categoryContas = categoryRepository.findByNameIgnoreCase("Roupas")
+                        .orElseThrow(() -> new RuntimeException("Categoria 'Roupas' não encontrada"));
+
+                User user = userRepository.findAll().get(0);
+
+                Expense expense1 = new Expense();
+                expense1.setDescription("Aluguel");
+                expense1.setAmount(BigDecimal.valueOf(1200));
+                expense1.setNumberOfInstallments(1);
+                expense1.setCategory(categoryMoradia);
+                expense1.setStartDate(LocalDate.of(2025, 8, 1));
+                expense1.setPaymentMethod(PaymentMethod.DEBIT);
+                expense1.setFixedExpense(true);
+                expense1.setUser(user);
+                expenseRepository.save(expense1);
+
+                Expense expense2 = new Expense();
+                expense2.setDescription("Blusas");
+                expense2.setAmount(BigDecimal.valueOf(300));
+                expense2.setNumberOfInstallments(2);
+                expense2.setCategory(categoryContas);
+                expense2.setStartDate(LocalDate.of(2025, 8, 5));
+                expense2.setPaymentMethod(PaymentMethod.CREDIT);
+                expense2.setFixedExpense(false);
+                expense2.setUser(user);
+                expenseRepository.save(expense2);
             }
         };
     }
