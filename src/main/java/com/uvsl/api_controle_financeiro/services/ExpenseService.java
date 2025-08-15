@@ -4,6 +4,7 @@ import com.uvsl.api_controle_financeiro.domain.Category;
 import com.uvsl.api_controle_financeiro.domain.Expense;
 import com.uvsl.api_controle_financeiro.domain.PaymentMethod;
 import com.uvsl.api_controle_financeiro.domain.User;
+import com.uvsl.api_controle_financeiro.dtos.CategoryExpenseSummaryDTO;
 import com.uvsl.api_controle_financeiro.dtos.ExpenseDTO;
 import com.uvsl.api_controle_financeiro.dtos.MonthExpense;
 import com.uvsl.api_controle_financeiro.repositories.CategoryRepository;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
@@ -150,5 +152,30 @@ public class ExpenseService {
         }
 
         return new MonthExpense(month, total, monthExpenses);
+    }
+
+    public CategoryExpenseSummaryDTO categoryExpenseSummary(Long userId, String categoryName, YearMonth month) {
+        MonthExpense monthExpense = calculateMonthExpenses(month, userId);
+
+        BigDecimal categoryTotal = monthExpense.expenses().stream()
+                .filter(e -> e.categoryName().equalsIgnoreCase(categoryName))
+                .map(e -> {
+                    if (e.numberOfInstallments() != null && e.numberOfInstallments() > 1) {
+                        return e.amount().divide(BigDecimal.valueOf(e.numberOfInstallments()), 2, RoundingMode.HALF_UP);
+                    }
+                    return e.amount();
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal monthTotal = monthExpense.total();
+
+        BigDecimal percentage = BigDecimal.ZERO;
+        if (monthTotal.compareTo(BigDecimal.ZERO) > 0) {
+            percentage = categoryTotal
+                    .divide(monthTotal, 2, RoundingMode.HALF_UP)
+                    .multiply(BigDecimal.valueOf(100));
+        }
+
+        return new CategoryExpenseSummaryDTO(categoryTotal, percentage);
     }
 }
