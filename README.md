@@ -64,14 +64,17 @@ A **Controle Financeiro API** oferece recursos para registrar, consultar, atuali
 
 - **Resumo por categoria**  
   `GET /api/expenses/category-summary?userId={id}&categoryName={nome}&year={ano}&month={mes}`  
-  Retorna o total gasto e o percentual de gastos de uma categoria específica dentro do mês.
+  Retorna o total gasto e o percentual de gastos de uma categoria específica dentro do mês. 
 
+- **Resumo completo por todas as categorias do mês**  
+  `GET /api/expenses/all-category-summary?userId={id}&year={ano}&month={mes}`  
+  Retorna o total gasto no mês e uma lista com todas as categorias, incluindo o valor gasto e o percentual de cada categoria em relação ao total.
 ---
 
 ## Exemplos de Requisições
 
 ### Criar Usuário
-`POST http://localhost:8080/api/users`
+`POST /api/users`
 
 ### Corpo da requisição (JSON)
 ```json
@@ -86,7 +89,7 @@ A **Controle Financeiro API** oferece recursos para registrar, consultar, atuali
 
 
 ### Criar Despesa
-`POST http://localhost:8080/api/expenses/create`
+`POST /api/expenses/create`
 
 ### Corpo da requisição (JSON)
 ```json
