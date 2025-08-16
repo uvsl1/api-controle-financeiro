@@ -1,9 +1,11 @@
 package com.uvsl.api_controle_financeiro.controllers;
 
+import com.uvsl.api_controle_financeiro.dtos.AllCategoryExpenseSummaryDTO;
 import com.uvsl.api_controle_financeiro.dtos.CategoryExpenseSummaryDTO;
 import com.uvsl.api_controle_financeiro.dtos.MonthExpense;
 import com.uvsl.api_controle_financeiro.services.ExpenseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,7 +55,10 @@ public class ExpenseController {
     }
 
     @GetMapping("/month")
-    public MonthExpense getMonthExpenses(@RequestParam int year, @RequestParam int month, @RequestParam Long userId) {
+    public MonthExpense getMonthExpenses(
+            @RequestParam int year,
+            @RequestParam int month,
+            @RequestParam Long userId) {
         YearMonth requestedMonth = YearMonth.of(year, month);
         return expenseService.calculateMonthExpenses(requestedMonth, userId);
     }
@@ -65,6 +70,14 @@ public class ExpenseController {
             @RequestParam int year,
             @RequestParam int month) {
         return expenseService.categoryExpenseSummary(userId, categoryName, YearMonth.of(year, month));
+    }
+
+    @GetMapping("/all-category-summary")
+    public AllCategoryExpenseSummaryDTO allCategoryExpenseSummary(
+            @RequestParam Long userId,
+            @RequestParam int year,
+            @RequestParam int month) {
+        return expenseService.allCategoryExpenseSummary(userId, YearMonth.of(year, month));
     }
 }
 

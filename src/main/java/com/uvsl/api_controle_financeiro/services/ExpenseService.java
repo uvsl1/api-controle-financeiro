@@ -4,6 +4,7 @@ import com.uvsl.api_controle_financeiro.domain.Category;
 import com.uvsl.api_controle_financeiro.domain.Expense;
 import com.uvsl.api_controle_financeiro.domain.PaymentMethod;
 import com.uvsl.api_controle_financeiro.domain.User;
+import com.uvsl.api_controle_financeiro.dtos.AllCategoryExpenseSummaryDTO;
 import com.uvsl.api_controle_financeiro.dtos.CategoryExpenseSummaryDTO;
 import com.uvsl.api_controle_financeiro.dtos.ExpenseDTO;
 import com.uvsl.api_controle_financeiro.dtos.MonthExpense;
@@ -18,6 +19,7 @@ import java.math.RoundingMode;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -176,6 +178,40 @@ public class ExpenseService {
                     .multiply(BigDecimal.valueOf(100));
         }
 
-        return new CategoryExpenseSummaryDTO(categoryTotal, percentage);
+        return new CategoryExpenseSummaryDTO(categoryName, categoryTotal, percentage);
+    }
+
+    public AllCategoryExpenseSummaryDTO allCategoryExpenseSummary(Long userId, YearMonth month) {
+        MonthExpense monthExpense = calculateMonthExpenses(month, userId);
+        BigDecimal monthTotal = monthExpense.total();
+
+        Map<String, BigDecimal> categoryTotals = monthExpense.expenses().stream()
+                .collect(Collectors.groupingBy(
+                        ExpenseDTO::categoryName,
+                        Collectors.mapping(
+                                e -> {
+                                    if (e.numberOfInstallments() != null && e.numberOfInstallments() > 1) {
+                                        return e.amount().divide(BigDecimal.valueOf(e.numberOfInstallments()), 2, RoundingMode.HALF_UP);
+                                    }
+                                    return e.amount();
+                                },
+                                Collectors.reducing(BigDecimal.ZERO, BigDecimal::add)
+                        )
+                ));
+
+        List<CategoryExpenseSummaryDTO> categories = categoryTotals.entrySet().stream()
+                .map(entry -> {
+                    BigDecimal total = entry.getValue();
+                    BigDecimal percentage = BigDecimal.ZERO;
+                    if (monthTotal.compareTo(BigDecimal.ZERO) > 0) {
+                        percentage = total
+                                .divide(monthTotal, 2, RoundingMode.HALF_UP)
+                                .multiply(BigDecimal.valueOf(100));
+                    }
+                    return new CategoryExpenseSummaryDTO(entry.getKey(), total, percentage);
+                })
+                .toList();
+
+        return new AllCategoryExpenseSummaryDTO(userId, month.toString(), monthTotal, categories);
     }
 }
