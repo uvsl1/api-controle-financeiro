@@ -1,9 +1,7 @@
 package com.uvsl.api_controle_financeiro.config;
 
-import com.uvsl.api_controle_financeiro.domain.Category;
-import com.uvsl.api_controle_financeiro.domain.Expense;
-import com.uvsl.api_controle_financeiro.domain.PaymentMethod;
-import com.uvsl.api_controle_financeiro.domain.User;
+import com.uvsl.api_controle_financeiro.domain.*;
+import com.uvsl.api_controle_financeiro.repositories.BalanceRepository;
 import com.uvsl.api_controle_financeiro.repositories.CategoryRepository;
 import com.uvsl.api_controle_financeiro.repositories.ExpenseRepository;
 import com.uvsl.api_controle_financeiro.repositories.UserRepository;
@@ -20,7 +18,8 @@ public class DataInitializer {
     @Bean
     CommandLineRunner initDatabase(CategoryRepository categoryRepository,
                                    UserRepository userRepository,
-                                   ExpenseRepository expenseRepository) {
+                                   ExpenseRepository expenseRepository,
+                                   BalanceRepository balanceRepository) {
         return args -> {
 
             // Categorias fixas
@@ -53,14 +52,13 @@ public class DataInitializer {
             }
 
             // Despesas de teste
+            User user = userRepository.findAll().get(0);
 
             if (expenseRepository.count() == 0) {
                 Category categoryMoradia = categoryRepository.findByNameIgnoreCase("Moradia")
                         .orElseThrow(() -> new RuntimeException("Categoria 'Moradia' não encontrada"));
                 Category categoryContas = categoryRepository.findByNameIgnoreCase("Roupas")
                         .orElseThrow(() -> new RuntimeException("Categoria 'Roupas' não encontrada"));
-
-                User user = userRepository.findAll().get(0);
 
                 Expense expense1 = new Expense();
                 expense1.setDescription("Aluguel");
@@ -83,6 +81,26 @@ public class DataInitializer {
                 expense2.setFixedExpense(false);
                 expense2.setUser(user);
                 expenseRepository.save(expense2);
+            }
+
+            // Saldos de teste
+
+            if (balanceRepository.count() == 0) {
+                Balance balance1 = new Balance();
+                balance1.setDescription("Salário");
+                balance1.setAmount(BigDecimal.valueOf(3500));
+                balance1.setFixed(true);
+                balance1.setStartDate(LocalDate.of(2025, 1, 1));
+                balance1.setUser(user);
+                balanceRepository.save(balance1);
+
+                Balance balance2 = new Balance();
+                balance2.setDescription("Venda de notebook");
+                balance2.setAmount(BigDecimal.valueOf(2000));
+                balance2.setFixed(false);
+                balance2.setStartDate(LocalDate.of(2025, 8, 10));
+                balance2.setUser(user);
+                balanceRepository.save(balance2);
             }
         };
     }
