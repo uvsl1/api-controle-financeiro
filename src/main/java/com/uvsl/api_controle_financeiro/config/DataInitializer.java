@@ -1,7 +1,7 @@
 package com.uvsl.api_controle_financeiro.config;
 
 import com.uvsl.api_controle_financeiro.domain.*;
-import com.uvsl.api_controle_financeiro.repositories.BalanceRepository;
+import com.uvsl.api_controle_financeiro.repositories.IncomeRepository;
 import com.uvsl.api_controle_financeiro.repositories.CategoryRepository;
 import com.uvsl.api_controle_financeiro.repositories.ExpenseRepository;
 import com.uvsl.api_controle_financeiro.repositories.UserRepository;
@@ -19,7 +19,7 @@ public class DataInitializer {
     CommandLineRunner initDatabase(CategoryRepository categoryRepository,
                                    UserRepository userRepository,
                                    ExpenseRepository expenseRepository,
-                                   BalanceRepository balanceRepository) {
+                                   IncomeRepository incomeRepository) {
         return args -> {
 
             // Categorias fixas
@@ -85,22 +85,22 @@ public class DataInitializer {
 
             // Saldos de teste
 
-            if (balanceRepository.count() == 0) {
-                Balance balance1 = new Balance();
-                balance1.setDescription("Salário");
-                balance1.setAmount(BigDecimal.valueOf(3500));
-                balance1.setFixed(true);
-                balance1.setStartDate(LocalDate.of(2025, 1, 1));
-                balance1.setUser(user);
-                balanceRepository.save(balance1);
+            if (incomeRepository.count() == 0) {
+                Income income1 = new Income();
+                income1.setDescription("Salário");
+                income1.setAmount(BigDecimal.valueOf(3500));
+                income1.setFixed(true);
+                income1.setStartDate(LocalDate.of(2025, 1, 1));
+                income1.setUser(user);
+                incomeRepository.save(income1);
 
-                Balance balance2 = new Balance();
-                balance2.setDescription("Venda de notebook");
-                balance2.setAmount(BigDecimal.valueOf(2000));
-                balance2.setFixed(false);
-                balance2.setStartDate(LocalDate.of(2025, 8, 10));
-                balance2.setUser(user);
-                balanceRepository.save(balance2);
+                Income income2 = new Income();
+                income2.setDescription("Venda de notebook");
+                income2.setAmount(BigDecimal.valueOf(2000));
+                income2.setFixed(false);
+                income2.setStartDate(LocalDate.of(2025, 8, 10));
+                income2.setUser(user);
+                incomeRepository.save(income2);
             }
         };
     }

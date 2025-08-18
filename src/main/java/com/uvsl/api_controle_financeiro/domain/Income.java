@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "balance")
-public class Balance {
+public class Income {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,10 +22,10 @@ public class Balance {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public Balance() {
+    public Income() {
     }
 
-    public Balance(String description, BigDecimal amount, Boolean isFixed, LocalDate startDate, User user) {
+    public Income(String description, BigDecimal amount, Boolean isFixed, LocalDate startDate, User user) {
         this.description = description;
         this.amount = amount;
         this.isFixed = isFixed;

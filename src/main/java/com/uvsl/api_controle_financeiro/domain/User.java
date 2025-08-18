@@ -21,7 +21,7 @@ public class User {
     private List<Expense> expenses;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Balance> balances;
+    private List<Income> incomes;
 
     public User() {}
 
