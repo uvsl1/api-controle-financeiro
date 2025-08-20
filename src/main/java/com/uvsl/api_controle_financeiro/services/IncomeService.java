@@ -100,4 +100,10 @@ public class IncomeService {
         Income updatedIncome = incomeRepository.save(income);
         return toDTO(updatedIncome);
     }
+
+    public void deleteIncome(Long id) {
+        Income income = incomeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Receita não encontrada"));
+        incomeRepository.delete(income);
+    }
 }
