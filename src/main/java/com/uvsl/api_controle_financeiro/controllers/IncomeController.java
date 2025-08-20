@@ -37,4 +37,15 @@ public class IncomeController {
         YearMonth requestedMonth = YearMonth.of(year, month);
         return incomeService.calculateMonthIncomes(requestedMonth, userId);
     }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<IncomeDTO> partiallyUpdateIncome(
+            @PathVariable Long id,
+            @RequestBody IncomeDTO incomeDTO) {
+
+        IncomeDTO updatedIncome = incomeService.partiallyUpdateIncome(id, incomeDTO);
+        return ResponseEntity.ok(updatedIncome);
+    }
+
+
 }

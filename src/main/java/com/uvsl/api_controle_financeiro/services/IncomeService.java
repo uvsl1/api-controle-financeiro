@@ -74,4 +74,30 @@ public class IncomeService {
 
         return new MonthIncomes(month, total, monthIncomes);
     }
+
+    public IncomeDTO partiallyUpdateIncome(Long id, IncomeDTO incomeDTO) {
+        Income income = incomeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Receita não encontrada"));
+
+        if (incomeDTO.description() != null) {
+            income.setDescription(incomeDTO.description());
+        }
+        if (incomeDTO.amount() != null) {
+            income.setAmount(incomeDTO.amount());
+        }
+        if (incomeDTO.isFixed() != null) {
+            income.setFixed(incomeDTO.isFixed());
+        }
+        if (incomeDTO.startDate() != null) {
+            income.setStartDate(incomeDTO.startDate());
+        }
+        if (incomeDTO.userId() != null) {
+            var user = userRepository.findById(incomeDTO.userId())
+                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+            income.setUser(user);
+        }
+
+        Income updatedIncome = incomeRepository.save(income);
+        return toDTO(updatedIncome);
+    }
 }
