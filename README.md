@@ -12,6 +12,7 @@ Permite registrar gastos, categorizá-los e disponibilizar relatórios para aná
 - [Tecnologias utilizadas](#tecnologias-utilizadas)
 - [Funcionalidades da API](#funcionalidades-da-api)
     - [Gestão de Despesas](#gestao-de-despesas)
+    - [Gestão de Receitas](#gestao-de-receitas)
     - [Relatórios e Resumos](#relatorios-e-resumos)
 - [Exemplos de Requisições](#exemplos-de-requisicoes)
 - [Como executar o projeto](#como-executar-o-projeto)
@@ -57,6 +58,25 @@ A **Controle Financeiro API** oferece recursos para registrar, consultar, atuali
 
 ---
 
+### **Gestão de Receitas**
+- **Criar receita**  
+  `POST /api/incomes/create`  
+  Registra uma nova receita com descrição, valor, data e usuário.
+
+- **Listar receitas por usuário**  
+  `GET /api/incomes/user/{userId}`  
+  Retorna todas as receitas cadastradas de um usuário específico.
+
+- **Atualização parcial de receita**  
+  `PATCH /api/incomes/{id}`  
+  Permite modificar apenas campos específicos de uma receita.
+
+- **Excluir receita**  
+  `DELETE /api/incomes/{id}`  
+  Remove uma receita do sistema.
+
+---
+
 ### **Relatórios e Resumos**
 - **Resumo mensal de despesas**  
   `GET /api/expenses/month?year={ano}&month={mes}&userId={id}`  
@@ -69,6 +89,10 @@ A **Controle Financeiro API** oferece recursos para registrar, consultar, atuali
 - **Resumo completo por todas as categorias do mês**  
   `GET /api/expenses/all-category-summary?userId={id}&year={ano}&month={mes}`  
   Retorna o total gasto no mês e uma lista com todas as categorias, incluindo o valor gasto e o percentual de cada categoria em relação ao total.
+
+- **Resumo mensal de receitas**  
+  `GET /api/incomes/month?year={ano}&month={mes}&userId={id}`  
+  Retorna o total de receitas no mês informado.
 ---
 
 ## Exemplos de Requisições
@@ -91,7 +115,6 @@ A **Controle Financeiro API** oferece recursos para registrar, consultar, atuali
 ### Criar Despesa
 `POST /api/expenses/create`
 
-### Corpo da requisição (JSON)
 ```json
 {
   "description": "Shampoo",
@@ -101,6 +124,19 @@ A **Controle Financeiro API** oferece recursos para registrar, consultar, atuali
   "startDate": "2025-08-01",
   "paymentMethod": "CREDIT",
   "fixedExpense": false,
+  "userId": 1
+}
+```
+
+### Criar Receita
+`POST /api/incomes/create`
+
+```json
+{
+  "description": "Venda de aparelho doméstico",
+  "amount": 320.00,
+  "isFixed": false,
+  "startDate": "2025-08-01",
   "userId": 1
 }
 ```
