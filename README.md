@@ -93,6 +93,11 @@ A **Controle Financeiro API** oferece recursos para registrar, consultar, atuali
 - **Resumo mensal de receitas**  
   `GET /api/incomes/month?year={ano}&month={mes}&userId={id}`  
   Retorna o total de receitas no mês informado.
+
+- **Saldo mensal (receitas - despesas)**  
+  `GET /api/balances/month?year={ano}&month={mes}&userId={id}`  
+  Retorna o saldo do mês informado, calculado a partir da diferença entre receitas e despesas.  
+
 ---
 
 ## Exemplos de Requisições
