@@ -25,7 +25,7 @@ Permite registrar gastos, categorizá-los e disponibilizar relatórios para aná
 - Spring Boot
 - Maven
 - JPA (Java Persistence API)
-- Postgresql (Ainda não implementado, usando H2 Database até o momento)
+- Postgres
 - Spring Security (Ainda não implementado)
 - Swagger (Ainda não implementado)
 
