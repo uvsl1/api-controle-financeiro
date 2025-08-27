@@ -1,8 +1,11 @@
 package com.uvsl.api_controle_financeiro.controllers;
 
+import com.uvsl.api_controle_financeiro.domain.User;
 import com.uvsl.api_controle_financeiro.dtos.AuthDTO;
+import com.uvsl.api_controle_financeiro.dtos.AuthLoginResponseDTO;
 import com.uvsl.api_controle_financeiro.dtos.UserDTO;
 import com.uvsl.api_controle_financeiro.repositories.UserRepository;
+import com.uvsl.api_controle_financeiro.security.JwtTokenProvider;
 import com.uvsl.api_controle_financeiro.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +32,9 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+
     @PostMapping("/register")
     public ResponseEntity<UserDTO> register(@RequestBody @Valid UserDTO userDTO) {
         UserDTO userToCreate = new UserDTO(
@@ -42,11 +48,14 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody @Valid AuthDTO data){
-        var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.password());
-        var auth = this.authenticationManager.authenticate(usernamePassword);
+    public ResponseEntity<AuthLoginResponseDTO> login(@RequestBody @Valid AuthDTO data) {
+        var authToken = new UsernamePasswordAuthenticationToken(data.email(), data.password());
+        var auth = authenticationManager.authenticate(authToken);
+        User user = userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new RuntimeException("Usuario não encontrado"));
 
-        return ResponseEntity.ok().build();
+        String token = jwtTokenProvider.generateToken(user);
+        return ResponseEntity.ok(new AuthLoginResponseDTO(token));
     }
 
 }
