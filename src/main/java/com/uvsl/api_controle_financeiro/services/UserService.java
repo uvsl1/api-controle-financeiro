@@ -22,8 +22,4 @@ public class UserService {
         User savedUser = userRepository.save(user);
         return new UserDTO(savedUser.getId(), savedUser.getName(), savedUser.getEmail(), savedUser.getPassword());
     }
-
-    public Optional<UserDTO> getUserById(Long id) {
-        return userRepository.findById(id).map(user -> new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getPassword()));
-    }
 }

@@ -1,6 +1,7 @@
 package com.uvsl.api_controle_financeiro.config;
 
 import com.uvsl.api_controle_financeiro.domain.*;
+import com.uvsl.api_controle_financeiro.dtos.UserDTO;
 import com.uvsl.api_controle_financeiro.repositories.IncomeRepository;
 import com.uvsl.api_controle_financeiro.repositories.CategoryRepository;
 import com.uvsl.api_controle_financeiro.repositories.ExpenseRepository;
@@ -8,6 +9,7 @@ import com.uvsl.api_controle_financeiro.repositories.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -47,7 +49,7 @@ public class DataInitializer {
                 User user = new User();
                 user.setName("Ugo V");
                 user.setEmail("ugo.com");
-                user.setPassword("123");
+                user.setPassword(new BCryptPasswordEncoder().encode("123"));
                 userRepository.save(user);
             }
 
