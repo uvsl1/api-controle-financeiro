@@ -26,7 +26,9 @@ Permite registrar gastos, categorizá-los e disponibilizar relatórios para aná
 - Maven
 - JPA (Java Persistence API)
 - Postgres
-- Spring Security (Ainda não implementado)
+- Docker
+- Spring Security
+- JWT (JSON Web Token)
 - Swagger (Ainda não implementado)
 
 ---
@@ -102,22 +104,42 @@ A **Controle Financeiro API** oferece recursos para registrar, consultar, atuali
 
 ## Exemplos de Requisições
 
-### Criar Usuário
-`POST /api/users`
+### Criar Conta
+`POST /api/auth/register`
 
 ### Corpo da requisição (JSON)
 ```json
 {
-  "name": "Ugo V",
-  "email": "ugo@mail.com",
-  "password": "123"
+  "name": "{nome}",
+  "email": "{email}",
+  "password": "{senha}"
 }
 ```
 
->**Observação:** no futuro será implementada a lógica de criação de contas com autenticação e autorização, permitindo login seguro e controle de acesso.
+### Logar na Conta
+`POST /api/auth/login`
+
+```json
+{
+    "email": "{email}",
+    "password": "{senha}"
+}
+```
+
+> **Importante:** após o login, a resposta conterá um **token JWT**.  
+> Esse token deve ser enviado em todas as requisições, no **header Authorization**.
+
+####  No Postman ou Insomnia:
+- Vá até a aba **Authorization** da sua requisição.
+- Escolha o tipo **Bearer Token**.
+- Cole o token no campo **Token**.
+ 
 
 
 ### Criar Despesa
+
+>Datas sempre serão `YYYY-MM-DD`
+
 `POST /api/expenses/create`
 
 ```json
@@ -150,17 +172,23 @@ A **Controle Financeiro API** oferece recursos para registrar, consultar, atuali
 
 ## Como executar o projeto
 
+### Requisitos
+
+- Docker instalado: [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
+- Docker Compose instalado (normalmente já vem com o Docker Desktop)
+
 ### Clonar o repositório
 ```bash
 git clone https://github.com/uvsl1/api-controle-financeiro.git
 cd api-controle-financeiro
 ```
 
-### Executar a aplicação
+### Executar via Docker Compose
+Assim, sobe automaticamente o Postgres e a API em containers separados, sem precisar instalar o banco localmente.
 ```bash
-mvn spring-boot:run
+docker-compose up --build
 ```
 
-A aplicação estará disponível em: ```http://localhost:8080```.
+> A aplicação ficará disponível em: `http://localhost:8080`
 
 ---
