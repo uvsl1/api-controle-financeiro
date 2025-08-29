@@ -1,11 +1,13 @@
 package com.uvsl.api_controle_financeiro.services;
 
 import com.uvsl.api_controle_financeiro.domain.Income;
+import com.uvsl.api_controle_financeiro.domain.User;
 import com.uvsl.api_controle_financeiro.dtos.IncomeDTO;
 import com.uvsl.api_controle_financeiro.dtos.MonthIncomes;
 import com.uvsl.api_controle_financeiro.repositories.IncomeRepository;
 import com.uvsl.api_controle_financeiro.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -28,13 +30,12 @@ public class IncomeService {
                 income.getDescription(),
                 income.getAmount(),
                 income.getFixed(),
-                income.getStartDate(),
-                income.getUser().getId()
+                income.getStartDate()
         );
     }
 
-    public IncomeDTO createIncome(IncomeDTO incomeDTO) {
-        var user = userRepository.findById(incomeDTO.userId())
+    public IncomeDTO createIncome(IncomeDTO incomeDTO, Long userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         Income income = new Income(
@@ -44,6 +45,7 @@ public class IncomeService {
                 incomeDTO.startDate(),
                 user
         );
+
         Income savedIncome = incomeRepository.save(income);
         return toDTO(savedIncome);
     }
@@ -75,9 +77,12 @@ public class IncomeService {
         return new MonthIncomes(month, total, monthIncomes);
     }
 
-    public IncomeDTO partiallyUpdateIncome(Long id, IncomeDTO incomeDTO) {
+    public IncomeDTO partiallyUpdateIncome(Long id, IncomeDTO incomeDTO, Long userId) {
         Income income = incomeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Receita não encontrada"));
+        if (!income.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("Você não tem permissão para alterar essa receita");
+        }
 
         if (incomeDTO.description() != null) {
             income.setDescription(incomeDTO.description());
@@ -91,19 +96,17 @@ public class IncomeService {
         if (incomeDTO.startDate() != null) {
             income.setStartDate(incomeDTO.startDate());
         }
-        if (incomeDTO.userId() != null) {
-            var user = userRepository.findById(incomeDTO.userId())
-                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-            income.setUser(user);
-        }
 
         Income updatedIncome = incomeRepository.save(income);
         return toDTO(updatedIncome);
     }
 
-    public void deleteIncome(Long id) {
+    public void deleteIncome(Long id, Long userId) {
         Income income = incomeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Receita não encontrada"));
+        if (!income.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("Você não tem permissão para deletar essa receita");
+        }
         incomeRepository.delete(income);
     }
 }

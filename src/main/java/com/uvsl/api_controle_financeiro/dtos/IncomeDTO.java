@@ -7,6 +7,5 @@ public record IncomeDTO(Long id,
                         String description,
                         BigDecimal amount,
                         Boolean isFixed,
-                        LocalDate startDate,
-                        Long userId) {
+                        LocalDate startDate) {
 }
