@@ -1,8 +1,10 @@
 package com.uvsl.api_controle_financeiro.controllers;
 
 import com.uvsl.api_controle_financeiro.dtos.MonthBalanceDTO;
+import com.uvsl.api_controle_financeiro.security.UserDetailsImpl;
 import com.uvsl.api_controle_financeiro.services.BalanceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,8 +23,8 @@ public class BalanceController {
     public MonthBalanceDTO getMonthBalance(
             @RequestParam int year,
             @RequestParam int month,
-            @RequestParam Long userId) {
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
         YearMonth requestedMonth = YearMonth.of(year, month);
-        return balanceService.calculateMonthBalance(userId, requestedMonth);
+        return balanceService.calculateMonthBalance(userDetails.getId(), requestedMonth);
     }
 }

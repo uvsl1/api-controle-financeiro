@@ -12,6 +12,7 @@ import com.uvsl.api_controle_financeiro.repositories.CategoryRepository;
 import com.uvsl.api_controle_financeiro.repositories.ExpenseRepository;
 import com.uvsl.api_controle_financeiro.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -34,11 +35,11 @@ public class ExpenseService {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    public ExpenseDTO createExpense(ExpenseDTO expenseDTO) {
+    public ExpenseDTO createExpense(ExpenseDTO expenseDTO, Long userId) {
         Category category = categoryRepository.findByNameIgnoreCase(expenseDTO.categoryName())
                 .orElseThrow(() -> new RuntimeException("Categoria não encontrada"));
 
-        User user = userRepository.findById(expenseDTO.userId())
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         Expense expense = new Expense(
@@ -62,15 +63,22 @@ public class ExpenseService {
                 .collect(Collectors.toList());
     }
 
-    public ExpenseDTO getExpenseById(Long id) {
+    public ExpenseDTO getExpenseById(Long id, Long userId) {
         Expense expense = expenseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
+        if (!expense.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("Você não tem permissão para acessar essa despesa");
+        }
         return toDTO(expense);
     }
 
-    public ExpenseDTO partiallyUpdateExpense(Long id, ExpenseDTO expenseDTO) {
+    public ExpenseDTO partiallyUpdateExpense(Long id, ExpenseDTO expenseDTO, Long userId) {
         Expense expense = expenseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
+
+        if (!expense.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("Você não tem permissão para alterar essa despesa");
+        }
 
         if (expenseDTO.description() != null) {
             expense.setDescription(expenseDTO.description());
@@ -95,19 +103,17 @@ public class ExpenseService {
         if (expenseDTO.fixedExpense() != null) {
             expense.setFixedExpense(expenseDTO.fixedExpense());
         }
-        if (expenseDTO.userId() != null) {
-            User user = userRepository.findById(expenseDTO.userId())
-                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-            expense.setUser(user);
-        }
 
         Expense updatedExpense = expenseRepository.save(expense);
         return toDTO(updatedExpense);
     }
 
-    public void deleteExpense(Long id) {
+    public void deleteExpense(Long id, Long userId) {
         Expense expense = expenseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
+        if (!expense.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("Você não tem permissão para alterar essa despesa");
+        }
         expenseRepository.delete(expense);
     }
 
@@ -120,8 +126,7 @@ public class ExpenseService {
                 expense.getCategory().getName(),
                 expense.getStartDate(),
                 expense.getPaymentMethod(),
-                expense.isFixedExpense(),
-                expense.getUser().getId()
+                expense.isFixedExpense()
         );
     }
 

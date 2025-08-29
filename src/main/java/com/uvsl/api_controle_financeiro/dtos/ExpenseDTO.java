@@ -12,6 +12,4 @@ public record ExpenseDTO(Long id,
                          String categoryName,
                          LocalDate startDate,
                          PaymentMethod paymentMethod,
-                         Boolean fixedExpense,
-                         Long userId) {
-}
+                         Boolean fixedExpense) {}
