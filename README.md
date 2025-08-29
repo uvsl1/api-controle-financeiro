@@ -1,9 +1,9 @@
 # Controle Financeiro - API (Em Desenvolvimento)
 
-API REST desenvolvida em Java com Spring Boot para gerenciar e monitorar despesas.  
-Permite registrar gastos, categorizá-los e disponibilizar relatórios para análise de onde e como o dinheiro está sendo utilizado. 
+API REST desenvolvida em Java com Spring Boot para gerenciar e monitorar despesas e receitas.
+Permite registrar gastos, categorizá-los e disponibilizar relatórios para análise de onde e como o dinheiro está sendo utilizado.
 
-**⚠️ Projeto em desenvolvimento:** funcionalidades, segurança, integrações, ajustes e outros ainda estão sendo implementadas.
+**⚠️ Projeto em desenvolvimento:**  ajustes ainda sendo implementados.
 
 ---
 
@@ -11,10 +11,10 @@ Permite registrar gastos, categorizá-los e disponibilizar relatórios para aná
 
 - [Tecnologias utilizadas](#tecnologias-utilizadas)
 - [Funcionalidades da API](#funcionalidades-da-api)
-    - [Gestão de Despesas](#gestao-de-despesas)
-    - [Gestão de Receitas](#gestao-de-receitas)
-    - [Relatórios e Resumos](#relatorios-e-resumos)
-- [Exemplos de Requisições](#exemplos-de-requisicoes)
+  - [Autenticação](#autenticacao)
+  - [Gestão de Despesas](#gestao-de-despesas)
+  - [Gestão de Receitas](#gestao-de-receitas)
+  - [Balanço Mensal](#balanco-mensal)
 - [Como executar o projeto](#como-executar-o-projeto)
 
 ---
@@ -35,79 +35,18 @@ Permite registrar gastos, categorizá-los e disponibilizar relatórios para aná
 
 ## Funcionalidades da API
 
-A **Controle Financeiro API** oferece recursos para registrar, consultar, atualizar e excluir despesas, além de gerar relatórios mensais e por categoria.
+A API oferece recursos para registrar, consultar, atualizar e excluir despesas e receitas, além de gerar balanço geral, relatórios mensais e por categoria.
 
-### **Gestão de Despesas**
-- **Criar despesa**  
-  `POST /api/expenses/create`  
-  Registra uma nova despesa com descrição, valor, data e categoria.
+## Autenticação
 
-- **Listar despesas por usuário**  
-  `GET /api/expenses/user/{userId}`  
-  Retorna todas as despesas cadastradas de um usuário específico.
+| Método | Endpoint | Descrição |
+|--------|---------|-----------|
+| POST   | `/api/auth/register` | Registrar um novo usuário |
+| POST   | `/api/auth/login` | Autenticar usuário e retornar token JWT |
 
-- **Buscar despesa por ID**  
-  `GET /api/expenses/{id}`  
-  Retorna os detalhes de uma despesa específica.
+**Exemplos de requests com JSON:**  
 
-- **Atualização parcial de despesa**  
-  `PATCH /api/expenses/{id}`  
-  Permite modificar apenas campos específicos de uma despesa.
-
-- **Excluir despesa**  
-  `DELETE /api/expenses/{id}`  
-  Remove uma despesa do sistema.
-
----
-
-### **Gestão de Receitas**
-- **Criar receita**  
-  `POST /api/incomes/create`  
-  Registra uma nova receita com descrição, valor, data e usuário.
-
-- **Listar receitas por usuário**  
-  `GET /api/incomes/user/{userId}`  
-  Retorna todas as receitas cadastradas de um usuário específico.
-
-- **Atualização parcial de receita**  
-  `PATCH /api/incomes/{id}`  
-  Permite modificar apenas campos específicos de uma receita.
-
-- **Excluir receita**  
-  `DELETE /api/incomes/{id}`  
-  Remove uma receita do sistema.
-
----
-
-### **Relatórios e Resumos**
-- **Resumo mensal de despesas**  
-  `GET /api/expenses/month?year={ano}&month={mes}&userId={id}`  
-  Retorna o total gasto no mês informado, junto com estatísticas adicionais.
-
-- **Resumo por categoria**  
-  `GET /api/expenses/category-summary?userId={id}&categoryName={nome}&year={ano}&month={mes}`  
-  Retorna o total gasto e o percentual de gastos de uma categoria específica dentro do mês. 
-
-- **Resumo completo por todas as categorias do mês**  
-  `GET /api/expenses/all-category-summary?userId={id}&year={ano}&month={mes}`  
-  Retorna o total gasto no mês e uma lista com todas as categorias, incluindo o valor gasto e o percentual de cada categoria em relação ao total.
-
-- **Resumo mensal de receitas**  
-  `GET /api/incomes/month?year={ano}&month={mes}&userId={id}`  
-  Retorna o total de receitas no mês informado.
-
-- **Saldo mensal (receitas - despesas)**  
-  `GET /api/balances/month?year={ano}&month={mes}&userId={id}`  
-  Retorna o saldo do mês informado, calculado a partir da diferença entre receitas e despesas.  
-
----
-
-## Exemplos de Requisições
-
-### Criar Conta
-`POST /api/auth/register`
-
-### Corpo da requisição (JSON)
+**Exemplo para registrar:**
 ```json
 {
   "name": "{nome}",
@@ -116,32 +55,33 @@ A **Controle Financeiro API** oferece recursos para registrar, consultar, atuali
 }
 ```
 
-### Logar na Conta
-`POST /api/auth/login`
-
+**Exemplo para login:**
 ```json
 {
-    "email": "{email}",
-    "password": "{senha}"
+  "email": "{email}",
+  "password": "{senha}"
 }
 ```
 
-> **Importante:** após o login, a resposta conterá um **token JWT**.  
-> Esse token deve ser enviado em todas as requisições, no **header Authorization**.
+> Após o login, o token deve ser enviado em todas as requisições autenticadas no header Authorization:  
+> `Authorization: Bearer <seu_token_aqui>`
 
-####  No Postman ou Insomnia:
-- Vá até a aba **Authorization** da sua requisição.
-- Escolha o tipo **Bearer Token**.
-- Cole o token no campo **Token**.
- 
+## Gestão de Despesas
 
+| Método | Endpoint | Descrição |
+|--------|---------|-----------|
+| POST   | `/api/expenses/create` | Criar nova despesa do usuário autenticado |
+| GET    | `/api/expenses/me` | Listar todas as despesas do usuário autenticado |
+| GET    | `/api/expenses/{id}` | Retorna os detalhes de uma despesa baseada no id da despesa do usuário autenticado. |
+| PATCH  | `/api/expenses/{id}` | Permite modificar apenas campos específicos de uma despesa baseada no id da despesa do usuário autenticado. |
+| DELETE | `/api/expenses/{id}` | Remove uma despesa baseada no id da despesa do usuário autenticado. |
+| GET    | `/api/expenses/month?year={ano}&month={mês}` | Resumo mensal das despesas do usuário autenticado |
+| GET    | `/api/expenses/category-summary?categoryName={categoria}&year={ano}&month={mês}` | Resumo de despesas por categoria no mês do usuário autenticado |
+| GET    | `/api/expenses/all-category-summary?year={ano}&month={mês}` | Resumo completo de todas as categorias no mês do usuário autenticado |
 
-### Criar Despesa
+**Exemplos de requests com JSON:**
 
->Datas sempre serão `YYYY-MM-DD`
-
-`POST /api/expenses/create`
-
+**Exemplo para criar despesa:**
 ```json
 {
   "description": "Shampoo",
@@ -149,24 +89,54 @@ A **Controle Financeiro API** oferece recursos para registrar, consultar, atuali
   "numberOfInstallments": 1,
   "categoryName": "Beleza",
   "startDate": "2025-08-01",
-  "paymentMethod": "CREDIT",
-  "fixedExpense": false,
-  "userId": 1
+  "paymentMethod": "CREDITO",
+  "fixedExpense": false
 }
 ```
 
-### Criar Receita
-`POST /api/incomes/create`
+**Exemplo para alterar algum campo da despesa:**  
+>Informe os campos que deseja alterar e seus novos valores. É possível atualizar múltiplos campos em uma única requisição. 
+```json
+{
+  "amount": 25.0
+}
+```
 
+## Gestão de Receitas
+
+| Método | Endpoint | Descrição |
+|--------|---------|-----------|
+| POST   | `/api/incomes/create` | Criar nova receita do usuário autenticado |
+| GET    | `/api/incomes/me` | Listar todas as receitas do usuário autenticado |
+| PATCH  | `/api/incomes/{id}` | Permite modificar apenas campos específicos de uma receita baseada no id da receita do usuário autenticado. |
+| DELETE | `/api/incomes/{id}` | Remove uma receita baseada no id da receita do usuário autenticado. |
+| GET    | `/api/incomes/month?year={ano}&month={mês}` | Resumo mensal das receitas do usuário autenticado |
+
+**Exemplos de requests com JSON:**
+
+**Exemplo para criar receita:**
 ```json
 {
   "description": "Venda de aparelho doméstico",
-  "amount": 320.00,
+  "amount": 320.0,
   "isFixed": false,
-  "startDate": "2025-08-01",
-  "userId": 1
+  "startDate": "2025-08-01"
 }
 ```
+
+**Exemplo para alterar algum campo da receita:**
+>Informe os campos que deseja alterar e seus novos valores. É possível atualizar múltiplos campos em uma única requisição.
+```json
+{
+  "amount": 300.0
+}
+```
+
+## Balanço Mensal
+
+| Método | Endpoint | Descrição |
+|--------|---------|-----------|
+| GET    | `/api/balances/month?year={ano}&month={mês}` | Saldo do mês (receitas - despesas) do usuário autenticado |
 
 ---
 

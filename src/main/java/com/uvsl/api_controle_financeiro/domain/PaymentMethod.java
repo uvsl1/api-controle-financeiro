@@ -1,8 +1,9 @@
 package com.uvsl.api_controle_financeiro.domain;
 
 public enum PaymentMethod {
-    DEBIT,
-    CREDIT;
+    DEBITO,
+    CREDITO,
+    DINHEIRO;
 
     public static PaymentMethod fromString(String method) {
         for (PaymentMethod pm : PaymentMethod.values()) {

@@ -68,7 +68,7 @@ public class DataInitializer {
                 expense1.setNumberOfInstallments(1);
                 expense1.setCategory(categoryMoradia);
                 expense1.setStartDate(LocalDate.of(2025, 8, 1));
-                expense1.setPaymentMethod(PaymentMethod.DEBIT);
+                expense1.setPaymentMethod(PaymentMethod.DEBITO);
                 expense1.setFixedExpense(true);
                 expense1.setUser(user);
                 expenseRepository.save(expense1);
@@ -79,7 +79,7 @@ public class DataInitializer {
                 expense2.setNumberOfInstallments(2);
                 expense2.setCategory(categoryContas);
                 expense2.setStartDate(LocalDate.of(2025, 8, 5));
-                expense2.setPaymentMethod(PaymentMethod.CREDIT);
+                expense2.setPaymentMethod(PaymentMethod.CREDITO);
                 expense2.setFixedExpense(false);
                 expense2.setUser(user);
                 expenseRepository.save(expense2);
